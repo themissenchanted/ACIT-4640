@@ -1,0 +1,12 @@
+---
+# tasks file for roles/npm
+- name: Install npm
+  become: yes
+  package:
+    name: npm
+    state: installed 
+
+- name: Installing the application 
+  become: yes
+  shell:
+    cmd: npm install --prefix /home/todoapp/app/ACIT4640-todo-app

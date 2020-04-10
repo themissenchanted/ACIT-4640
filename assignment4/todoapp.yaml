@@ -1,0 +1,129 @@
+---
+- hosts: all
+  vars:
+    app_port: 8080
+    user: todoapp
+    password: "123456"
+    app_name: todoapp
+    runner_home_folder: /home/admin
+    app_folder: /home/todoapp/app
+    nginx_file: ./setup/nginx.conf
+    nginx_file_destination: /etc/nginx/nginx.conf
+    service_file: ./setup/todoapp.service
+    service_file_destination: /etc/systemd/system/todoapp.service
+    mongo_repo_file: ./setup/mongodb-org.repo
+    mongo_repo_file_destination: /etc/yum.repos.d/mongodb-org.repo
+    mongo_dump_file: ./setup/mongodb_ACIT4640.tgz
+    mongo_dump_folder: /home/admin/setup/ACIT4640
+    setup_folder: /home/admin/setup
+    database_name: CHANGEME
+    git_repo: https://github.com/timoguic/ACIT4640-todo-app.git
+  tasks:
+    - name: Copy setup folder
+      copy:
+        src: ./setup
+        dest: "{{runner_home_folder}}"
+    - name: Copy ssh folder
+      copy:
+        src: ./.ssh
+        dest: "{{runner_home_folder}}"
+    - name: Copy mongodb repo file
+      become: yes
+      copy:
+        src: "{{mongo_repo_file}}"
+        dest: "{{mongo_repo_file_destination}}"
+    - name: Install packages
+      become: yes
+      package:
+        name:
+          - git
+          - nodejs
+          - nginx
+          - mongodb-org
+        state: installed
+    - name: Enable and start mongod
+      become: yes
+      systemd:
+        name: mongod
+        state: started
+        enabled: yes
+    - name: Enable and start nginx
+      become: yes
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+    - name: Open port "{{app_port}}"
+      become: yes
+      firewalld:
+        zone: public
+        port: "{{app_port}}/tcp"
+        permanent: yes
+        state: enabled
+    - name: Add the "{{user}}" user
+      become: yes
+      user:
+        name: "{{user}}"
+        password: "{{password}}"
+    - name: Checkout basecode
+      become: yes
+      git:
+        repo: "{{git_repo}}"
+        dest: "{{app_folder}}"
+        force: yes
+    - name: Install node packages
+      become: yes
+      npm:
+        path: "{{app_folder}}"
+    - name: Set "{{user}}" as owner of "{{user}}" files
+      become: yes
+      file:
+        path: "{{app_folder}}"
+        recurse: yes
+        owner: "{{user}}"
+        group: "{{user}}"
+    - name: Change permissions of "{{user}}"'s home folder
+      become: yes
+      file:
+        path: "/home/{{user}}"
+        mode: '0755'
+    - name: Change permissions of the app's folder
+      become: yes
+      file:
+        path: "{{app_folder}}"
+        mode: '0755'
+    - name: Change permissions of the app's public folder
+      become: yes
+      file:
+        path: "{{app_folder}}/public"
+        recurse: true
+        mode: '0755'
+    - name: Copy nginx config file
+      become: yes
+      copy:
+        src: "{{nginx_file}}"
+        dest: "{{nginx_file_destination}}"
+    - name: Restart nginx
+      become: yes
+      systemd:
+        name: nginx
+        state: restarted
+    - name: Copy app deamon config file
+      become: yes
+      copy:
+        src: "{{service_file}}"
+        dest: "{{service_file_destination}}"
+    - name: Enable and start app service
+      become: yes
+      systemd:
+        name: "{{app_name}}"
+        daemon_reload: yes
+        state: started
+        enabled: yes
+    - name: Extract mongodb dump file
+      become: yes
+      unarchive:
+        src: "{{mongo_dump_file}}"
+        dest: "{{setup_folder}}"
+    - name: Restore mongodb database
+      shell: export LANG=C && mongorestore -d CHANGEME "{{mongo_dump_folder}}"

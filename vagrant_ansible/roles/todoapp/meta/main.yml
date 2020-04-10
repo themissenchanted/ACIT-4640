@@ -1,0 +1,10 @@
+---
+dependencies: 
+  - nginx
+  - nodejs
+  - epel-release 
+  - git 
+  - npm 
+  - mongodb
+  - todoapp_service
+   

@@ -1,0 +1,3 @@
+---
+# defaults file for roles/epel-release
+todo_user: default_user

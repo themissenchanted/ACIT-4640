@@ -1,0 +1,3 @@
+---
+# defaults file for roles/mongodb
+todo_user: default_user

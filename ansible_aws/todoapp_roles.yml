@@ -1,0 +1,8 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    todo_user: todoapp
+  roles:
+    - base_system
+    - todoapp

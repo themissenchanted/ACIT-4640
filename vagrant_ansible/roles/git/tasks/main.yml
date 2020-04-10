@@ -1,0 +1,16 @@
+---
+# tasks file for roles/git
+- name: Install git
+  become: yes
+  package:
+    name: git
+    state: installed 
+
+- name: Cloning the git directory
+  become: yes
+  # become_user: todoapp
+  git:
+    repo: https://github.com/timoguic/ACIT4640-todo-app.git
+    dest: /home/todoapp/app/ACIT4640-todo-app 
+    clone: yes
+    force: yes

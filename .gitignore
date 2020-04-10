@@ -1,0 +1,11 @@
+assignment4/.vagrant
+assignment4/output
+assignment4/packer_cache
+assignment4/isos
+CentOS-7-x86_64-Minimal-1908.iso
+shasum.txt
+vagrant_ansible/packer_cache
+vagrant_ansible/isos
+vagrant_ansible/.vagrant
+anisble_aws/isos
+anisble_aws/.vagrant

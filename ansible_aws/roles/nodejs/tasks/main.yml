@@ -1,0 +1,8 @@
+---
+# tasks file for roles/nodejs
+
+- name: Install nodejs
+  become: yes
+  package:
+    name: nodejs
+    state: installed
