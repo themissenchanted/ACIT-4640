@@ -9,3 +9,4 @@ vagrant_ansible/isos
 vagrant_ansible/.vagrant
 anisble_aws/isos
 anisble_aws/.vagrant
+ansible_aws/aws_private_key.pem
